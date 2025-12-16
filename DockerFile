@@ -1,0 +1,22 @@
+ARG ALPINE_VERSION=3.23
+
+FROM docker.io/alpine:${ALPINE_VERSION}
+
+ENV IMAGE_FILTER="mysql|mariadb|postgres" \
+    TARGET_NETWORK="dump-net" \
+    DEFAULT_DB_NAME="ALL" \
+    DEFAULT_EXCLUDE="information_schema,performance_schema,mysql,sys,pg_catalog,pg_toast" \
+    DEFAULT_PORT_MYSQL="3306" \
+    DEFAULT_PORT_POSTGRES="5432" \
+    ENV_FILE="/output/env_file.sh"
+
+RUN apk add --no-cache docker-cli jq coreutils grep sed
+
+VOLUME /output
+
+ENTRYPOINT ["/usr/local/bin/init"]
+
+COPY ./scripts/discover.sh /usr/local/bin/discover
+COPY ./scripts/init.sh /usr/local/bin/init
+RUN chmod +x /usr/local/bin/discover
+RUN chmod +x /usr/local/bin/init
